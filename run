@@ -1,0 +1,32 @@
+#!/bin/sh
+
+set -x
+set -e
+
+bin=$(dirname "$(realpath "$0")")
+
+plug_ip=192.168.1.123
+measurements=/home/david/src/urwen/temper/measurements.tab
+max_humidity=65
+min_humidity=55
+
+humidity=$(tail -1 "$measurements" | awk '{print $4}')
+relay_state=$("$bin"/get-plug-info $plug_ip | jq .relay_state)
+
+pred() {
+    [ "$(echo "$1" | bc)" -eq 1 ]
+}
+
+# Check to see whether we need to turn the humidifier ON.
+if [ "$relay_state" -eq 0 ] && pred "$humidity < $min_humidity"; then
+    "$bin"/set-plug-relay-state "$plug_ip" on
+    >>actions.log printf '\n%s min_humidity=%s max_humidity=%s humidity=%s set-plug-relay-state %s on\n' \
+	    "$(date --iso=s)" $min_humidity $max_humidity "$humidity" $plug_ip
+# Check to see whether we need to turn the humidifier OFF.
+elif [ "$relay_state" -eq 1 ] && pred "$humidity > $max_humidity"; then
+    "$bin"/set-plug-relay-state "$plug_ip" off
+    >>actions.log printf '\n%s min_humidity=%s max_humidity=%s humidity=%s set-plug-relay-state %s off\n' \
+	    "$(date --iso=s)" $min_humidity $max_humidity "$humidity" $plug_ip
+else
+    >>actions.log printf '.'
+fi

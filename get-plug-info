@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+const {Client} = require('tplink-smarthome-api');
+
+// argv[0]: /path/to/node
+// argv[1]: /path/to/this/script
+// argv[2]: ip.address.of.target.device
+const host = process.argv[2];
+
+const client = new Client();
+client.getDevice({host}).then(device => {
+  device.getSysInfo().then(info => {
+    process.stdout.write(JSON.stringify(info, null, 2));
+  });
+}).catch(error => {
+  console.error(error);
+});

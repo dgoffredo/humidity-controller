@@ -1,0 +1,8 @@
+#!/bin/sh
+
+sudo apt install -y nodejs npm jq
+
+# Node.js wrapper around the reverse engineered network protocol for TP Link
+# smart home devices.
+npm install tplink-smarthome-api
+
