@@ -4,6 +4,6 @@
 /package-lock.json
 
 # logs
-last-run.log
-actions.log
+/last-run.log
+/actions.log
 
