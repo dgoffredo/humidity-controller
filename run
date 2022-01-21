@@ -7,8 +7,8 @@ bin=$(dirname "$(realpath "$0")")
 
 plug_ip=192.168.1.123
 measurements=/home/david/src/urwen/temper/measurements.tab
-max_humidity=50
-min_humidity=40
+max_humidity=55
+min_humidity=45
 
 humidity=$(tail -1 "$measurements" | awk '{print $4}')
 relay_state=$("$bin"/get-plug-info $plug_ip | jq .relay_state)
