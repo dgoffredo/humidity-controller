@@ -19,10 +19,23 @@ console.log('Making sure the pump is off to begin with.');
 await device.setPowerState(false);
 
 // https://stackoverflow.com/a/50092576
-function delayMilliseconds(milliseconds) {
-  return new Promise(function(resolve) {
-      setTimeout(function() {
-          resolve();
+function delayMilliseconds(milliseconds, printTicks) {
+  let ticking = printTicks;
+  let timer = setInterval(() => {
+    if (ticking) {
+      process.stdout.write('.');
+    } else {
+      clearInterval(timer);
+    }
+  }, 1000);
+
+  return new Promise(resolve => {
+      setTimeout(() => {
+        if (ticking) {
+          process.stdout.write('\n');
+          ticking = false;
+        }
+        resolve();
       }, milliseconds);
   });
 }
@@ -31,18 +44,18 @@ const initialTimeoutSeconds = 3;
 console.log(`Will begin watering sequence in ${initialTimeoutSeconds} seconds.`);
 await delayMilliseconds(initialTimeoutSeconds * 1000);
 
-const onDurationSeconds = 3;
-const offDurationSeconds = 60;
-const numCycles = 10;
+const onDurationSeconds = 5;
+const offDurationSeconds = 120;
+const numCycles = 8;
 console.log('');
 for (let currentCycle = 0; currentCycle < numCycles; ++currentCycle) {
     console.log(`cycle ${currentCycle + 1}/${numCycles}`);
     console.log(`-> running pump for ${onDurationSeconds} seconds.`);
     await device.setPowerState(true);
-    await delayMilliseconds(onDurationSeconds * 1000);
+    await delayMilliseconds(onDurationSeconds * 1000, true);
     await device.setPowerState(false);
     console.log(`-> keeping pump off for ${offDurationSeconds} seconds.`);
-    await delayMilliseconds(offDurationSeconds * 1000);
+    await delayMilliseconds(offDurationSeconds * 1000, true);
     console.log('');
 }
 
